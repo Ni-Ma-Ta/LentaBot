@@ -6,14 +6,16 @@ class MessagesCollector:
     def __init__(self):
         self.client = telethon.TelegramClient('NiMaTaLentaBot', api_id, api_hash)
         self.client.connect()
-        
+
     def __del__(self):
         self.client.disconnect()
 
     def get_interesting_messages(self, chat_id, count, time_limit):
         messages = []
+        data = {}
         for message in self.client.iter_messages(chat_id, limit=count):
-            messages.append(message.id)         
+            messages.append(message.id)
+            data[message.id] = message.date
         return messages
 
 if __name__ == "__main__":
