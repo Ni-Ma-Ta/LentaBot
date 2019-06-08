@@ -1,7 +1,11 @@
 import telethon.sync as telethon
+import operator
+import datetime
+
 from secrets import telegram_api_id as api_id, \
         telegram_api_hash as api_hash
-import operator, datetime
+
+
 class MessagesCollector:
     def __init__(self):
         self.client = telethon.TelegramClient('NiMaTaLentaBot', api_id, api_hash)
@@ -25,7 +29,7 @@ class MessagesCollector:
         else:
             limit_date = datetime.datetime(hour=today.hour-time_limit, minute=today.minute, second=today.second,  \
                 day=today.day, month=today.month, year=today.year, tzinfo=datetime.timezone.utc)
-        for message in self.client.iter_messages(chat_id, offset_date = limit_date, reverse=True):
+        for message in self.client.iter_messages(chat_id, offset_date=limit_date, reverse=True):
             if message.date >= limit_date:
                 data[message.id] = message.views
         sorted_data = sorted(data.items(), key=operator.itemgetter(1))
