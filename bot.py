@@ -6,6 +6,7 @@ from channels_handler import ChannelsHandler
 
 
 bot = telebot.TeleBot(telebot_token)
+msg_collector = MessagesCollector()
 all_users = dict()
 
 def safe_user_access(func):
@@ -14,7 +15,7 @@ def safe_user_access(func):
             all_users[message.chat.id] = ChannelsHandler(
                     bot,
                     message.chat.id,
-                    MessagesCollector()
+                    msg_collector
                     )
         return func(message, *args, **kwargs)
     return ans
