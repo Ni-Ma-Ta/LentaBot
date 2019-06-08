@@ -4,14 +4,10 @@ from secrets import telegram_api_id as api_id, \
 
 class MessagesCollector:
     def __init__(self):
-        self.client = None
-
-    def __enter__(self):
         self.client = telethon.TelegramClient('NiMaTaLentaBot', api_id, api_hash)
         self.client.connect()
-        return self
-
-    def __exit__(self, exc_type, exc_value, tb):
+        
+    def __del__(self):
         self.client.disconnect()
 
     def get_interesting_messages(self, chat_id, count, time_limit):
@@ -21,6 +17,6 @@ class MessagesCollector:
         return messages
 
 if __name__ == "__main__":
-    with MessagesCollector() as a:
-        data = a.get_interesting_messages('@Cbpub', 5, 3)
-        print(data)
+    a =  MessagesCollector()
+    data = a.get_interesting_messages('@Cbpub', 5, 3)
+    print(data)
