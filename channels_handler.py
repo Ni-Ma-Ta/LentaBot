@@ -1,8 +1,6 @@
 from threading import Timer, Event
 from time import sleep
 
-from channel_analyzer import MessagesCollector
-
 
 def get_channel_id(chat_link):
     """
@@ -22,13 +20,14 @@ class ChannelData:
         self.count = count
 
 class ChannelsHandler:
-    def __init__(self, bot, user_id):
+    def __init__(self, bot, user_id, msg_collector):
         """
         @param {telebot.Bot} bot A Bot object
         @param {int} user_id The telegram user identeficator
         """
         self.bot = bot
         self.user_id = user_id
+        self.msg_collector = msg_collector
         self.channels = {} # channel_id to ChannelData object
         self.stop_events = {} # channel_id to Event that stops a thread
 
@@ -63,8 +62,7 @@ class ChannelsHandler:
                             msg)
                 sleep(60 * 60 * time_limit)
 
-        with MessagesCollector() as messages_collector:
-            Timer(1, f, [local_stop, self.user_id, self.channels[channel_id]], messages_collector).start()
+        Timer(1, f, [local_stop, self.user_id, self.channels[channel_id]], self.msg_collector).start()
 
     def del_channel(self, channel_link):
         """
