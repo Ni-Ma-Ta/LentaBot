@@ -62,7 +62,7 @@ class ChannelsHandler:
                             msg)
                 sleep(60 * 60 * time_limit)
 
-        Timer(1, f, [local_stop, self.user_id, self.channels[channel_id]], self.msg_collector).start()
+        Timer(1, f, [local_stop, self.user_id, self.channels[channel_id], self.msg_collector]).start()
 
     def del_channel(self, channel_link):
         """
