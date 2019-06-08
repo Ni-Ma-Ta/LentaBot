@@ -17,7 +17,7 @@ class ChannelData:
 class ChannelsHandler:
     def __init__(self, bot, user_id):
         """
-        @param {telethon.Client} bot A Client object
+        @param {telebot.Bot} bot A Bot object
         @param {int} user_id The telegram user identeficator
         """
         self.bot = bot
@@ -45,15 +45,11 @@ class ChannelsHandler:
                         channel_data.channel_id,
                         channel_data.count,
                         channel_data.frequency)
-                '''for msg in msgs:
+                for msg in msgs:
                     bot.forward_message(
                             user_id,
                             channel_id,
-                            msg)'''
-                bot.forward_messages(
-                        user_id,
-                        msgs
-                    )
+                            msg)
                 sleep(60 * 60 * time_limit)
 
         Timer(1, f, [local_stop, self.user_id, self.channels[channel_id]]).start()
