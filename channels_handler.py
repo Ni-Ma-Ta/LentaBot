@@ -32,6 +32,10 @@ class ChannelsHandler:
         self.channels = {} # channel_id to ChannelData object
         self.stop_events = {} # channel_id to Event that stops a thread
 
+    def __del__(self):
+        for event in self.stop_events.values():
+            event.set()
+
     def add_channel(self, channel_link, frequency, count):
         """
         @param {str} channel_link Either a t.me link or @ChannelName
