@@ -5,7 +5,14 @@ from channel_analyzer import get_interesting_messages
 
 
 def get_channel_id(chat_link):
-    pass
+    """
+    @param {str} chat_link Either a t.me link or @ChannelName
+    @returns {str} The chat id in @ChannelName format
+    """
+    ans = chat_link.replace('http://', '') \
+            .replace('https://', '') \
+            .replace('t.me/', '@')
+    return ans
 
 
 class ChannelData:
