@@ -1,6 +1,7 @@
 import telebot
 
 from secrets import telebot_token
+from channel_analyzer import MessagesCollector
 from channels_handler import ChannelsHandler
 
 
@@ -10,7 +11,11 @@ all_users = dict()
 def safe_user_access(func):
     def ans(message, *args, **kwargs):
         if(message.chat.id not in all_users.keys()):
-            all_users[message.chat.id] = ChannelsHandler(bot, message.chat.id)
+            all_users[message.chat.id] = ChannelsHandler(
+                    bot,
+                    message.chat.id,
+                    MessagesCollector()
+                    )
         return func(message, *args, **kwargs)
     return ans
 
