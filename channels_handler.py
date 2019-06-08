@@ -1,7 +1,7 @@
 from threading import Timer, Event
 from time import sleep
 
-from channel_analyzer import get_interesting_messages
+from channel_analyzer import MessagesCollector
 
 
 def get_channel_id(chat_link):
@@ -48,11 +48,11 @@ class ChannelsHandler:
         self.channels[channel_id] = ChannelData(channel_id, frequency, count)
         local_stop = Event()
         self.stop_events[channel_id] = local_stop
-        def f(stop_event, user_id, channel_data):
+        def f(stop_event, user_id, channel_data, messages_collector):
             while True:
                 if stop_event.is_set():
                     return
-                msgs = get_interesting_messages(
+                msgs = messages_collector.get_interesting_messages(
                         channel_data.channel_id,
                         channel_data.count,
                         channel_data.frequency)
@@ -63,7 +63,8 @@ class ChannelsHandler:
                             msg)
                 sleep(60 * 60 * time_limit)
 
-        Timer(1, f, [local_stop, self.user_id, self.channels[channel_id]]).start()
+        with MessagesCollector() as messages_collector:
+            Timer(1, f, [local_stop, self.user_id, self.channels[channel_id]], messages_collector).start()
 
     def del_channel(self, channel_link):
         """
