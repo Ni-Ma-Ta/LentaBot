@@ -25,7 +25,7 @@ def init(message):
 @bot.message_handler(commands=['help'])
 @safe_user_access
 def comands(message):
-    bot.reply_to(message, 'Полный список команд: \n\n"Добавить [Название канала] [M] [N]" - Я начну присылать вам N самых популярных новостей выбранного канала каждые N часов. Отсчет времени начнется с момента добавления канала. \n\n"Удалить [Название канала] - Я больше не буду присылать вам новости этого канала. \n\n"Изменить колво новостей [Название канала] [N]" - Теперь я буду присылать вам N новостей по этому каналу. \n\n"Изменить частоту [Название канала] [M]" - Я буду присылать вам новости этого канала каждые M часов.\n\n\n /stop - Прекратить со мной общение.')
+    bot.reply_to(message, 'Полный список команд: \n\n"Добавить <Название канала> <M> <N>" - Я начну присылать вам N самых популярных новостей выбранного канала каждые M часов. Отсчет времени начнется с момента добавления канала. \n\n"Удалить <Название канала> - Я больше не буду присылать вам новости этого канала. \n\n"Изменить колво новостей <Название канала> <N>" - Теперь я буду присылать вам N новостей по этому каналу. \n\n"Изменить частоту <Название канала> <M>" - Я буду присылать вам новости этого канала каждые M часов.\n\n\n /stop - Прекратить со мной общение.')
 
 def is_int(s):
     """
@@ -54,11 +54,11 @@ def del_user(message):
 def msg_handler(message):
     text = message.text.lower()
     all_users[message.chat.id] = all_users.get(message.chat.id, {})
-    if(len(text.split()) == 4 and " ".join(text.split()[0]) == "добавить" and is_int(text.split()[-2]) \
-            and is_int(text.split()[-1])):
+    if(len(text.split()) == 4 and text.split()[0] == "добавить" and is_int(text.split()[2]) \
+            and is_int(text.split()[3])):
         #добавляем новый канал
-        all_users[message.chat.id].add_channel(text.split()[1], int(text.split()[-2]), int(text.split()[-1]))
-    elif(len(text.split()) == 2 and " ".join(text.split()[0]) == "удалить"):
+        all_users[message.chat.id].add_channel(text.split()[1], int(text.split()[2]), int(text.split()[3]))
+    elif(len(text.split()) == 2 and text.split()[0] == "удалить"):
         #удаляем канал
         all_users[message.chat.id].del_channel(text.split()[1])
     elif(len(text.split()) == 5 and " ".join(text.split()[0:3]) == "изменить количество новостей" \
