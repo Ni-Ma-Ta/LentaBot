@@ -41,7 +41,6 @@ class ChannelsHandler:
         @param {float} frequency How often (in hours) do I have to check
             new messages in the channel
         @param {int} count How much interesting messages do I have to send
-        @returns {NoneType} None
         """
         channel_id = get_channel_id(channel_link)
         self.channels[channel_id] = ChannelData(channel_id, frequency, count)
@@ -67,7 +66,6 @@ class ChannelsHandler:
     def del_channel(self, channel_link):
         """
         @param {str} channel_link Either a t.me link or @ChannelName
-        @returns {NoneType} None
         """
         channel_id = get_channel_id(channel_link)
         self.stop_events[channel_id].set()
@@ -85,7 +83,6 @@ class ChannelsHandler:
         @param (optional) {float} new_frequency How often (in hours) do I have to check
             new messages in the channel
         @param (optional) {int} new_count How much interesting messages do I have to send
-        @returns {NoneType} None
         """
         channel_id = get_channel_id(channel_link)
         if new_frequency is None:
@@ -94,3 +91,26 @@ class ChannelsHandler:
             new_count = self.channels[channel_id].count
         self.del_channel(channel_link)
         self.add_channel(channel_link, frequency, count)
+
+    def dump(self):
+        """
+        This function returns a data that can be used in future to
+        create a ChannelsHandler with same settigns as this one
+
+        @returns {list[ChannelData]} A data for the self.load funcion
+        """
+        return self.channels
+
+    def load(self, data):
+        """
+        Takes data from the self.dump function and makes this object
+        be set up in the same way as the dumped object was
+
+        @param {list[ChannelData]} data An array of ChannelData to be saved now
+        """
+        for channel_data in data:
+            self.add_channel(
+                channel_data.channel_id,
+                channel_data.frequency,
+                channel_data.count
+                )
