@@ -30,8 +30,7 @@ class MessagesCollector:
             limit_date = datetime.datetime(hour=today.hour-time_limit, minute=today.minute, second=today.second,  \
                 day=today.day, month=today.month, year=today.year, tzinfo=datetime.timezone.utc)
         for message in self.client.iter_messages(chat_id, offset_date=limit_date, reverse=True):
-            if message.date >= limit_date:
-                data[message.id] = message.views
+            data[message.id] = message.views
         sorted_data = sorted(data.items(), key=operator.itemgetter(1))
         sorted_data.reverse()
         sorted_data = sorted_data[:count]
