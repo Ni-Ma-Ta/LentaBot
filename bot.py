@@ -11,6 +11,21 @@ bot = telebot.TeleBot(telebot_token)
 msg_collector = MessagesCollector()
 all_users = dict()
 
+def unfalling(func):
+    def ans(message, *args, **kwargs):
+        try:
+            result = func(message, *args, **kwargs)
+            return result
+        except KeyboardInterrupt:
+            exit(0)
+        except:
+            try:
+                bot.reply_to(message, "Извините, произошла ошибка. Обратитесь, пожалуйста, к организаторам. Бот продолжит работать в своем обычном режиме.")
+            except:
+                pass
+    return ans
+
+
 def safe_user_access(func):
     def ans(message, *args, **kwargs):
         if(message.chat.id not in all_users.keys()):
@@ -34,6 +49,7 @@ def autodump(func):
     return ans
 
 @bot.message_handler(commands=['start'])
+@unfalling
 @autodump
 def init(message):
     if message.chat.id in all_users:
@@ -42,6 +58,7 @@ def init(message):
         bot.reply_to(message, 'Привет! Я симулирую ленту наиболее популярных новостей по выбранным вами каналам. \nДля того, чтобы начать, пришлите мне "Добавить [Название канала] [M] [N]". Я начну присылать вам N новостей по этому каналу каждые M часов. \n\nЧтобы посмотреть полный список команд, пришлите /help')
 
 @bot.message_handler(commands=['help'])
+@unfalling
 @safe_user_access
 def comands(message):
     bot.reply_to(message, 'Полный список команд: \n\n"Добавить <Название канала> <M> <N>" - Я начну присылать вам N самых популярных новостей выбранного канала каждые M часов. Отсчет времени начнется с момента добавления канала. \n\n"Удалить <Название канала> - Я больше не буду присылать вам новости этого канала. \n\n"Изменить количество <Название канала> <N>" - Теперь я буду присылать вам N новостей по этому каналу. \n\n"Изменить частоту <Название канала> <M>" - Я буду присылать вам новости этого канала каждые M часов.\n\n\n /stop - Прекратить со мной общение.')
@@ -58,6 +75,7 @@ def is_int(s):
         return False
 
 @bot.message_handler(commands=['stop'])
+@unfalling
 def stop(message):
     if message.chat.id in all_users:
         bot.reply_to(message, 'Вы уверены, что хотите прекратить общаться? Все ваши настройки сбросятся! Если вы согласны, то пришлите мне /yesstop.')
@@ -65,6 +83,7 @@ def stop(message):
     bot.reply_to(message, "Вы просите меня забыть вас, но мы даже не были знакомы... Чтобы познакомиться, пришлите /start")
 
 @bot.message_handler(commands=['yesstop'])
+@unfalling
 @safe_user_access
 @autodump
 def del_user(message):
@@ -72,6 +91,7 @@ def del_user(message):
     del all_users[message.chat.id]
 
 @bot.message_handler()
+@unfalling
 @safe_user_access
 @autodump
 def msg_handler(message):
@@ -85,7 +105,7 @@ def msg_handler(message):
     elif(len(text.split()) == 2 and text.split()[0] == "удалить"):
         #удаляем канал
         all_users[message.chat.id].del_channel(text.split()[1])
-        bot.reply_to(message, "Я совершенно забыл про этот канал.")
+        bot.reply_to(message, "Я навсегда забыл про этот канал.")
     elif(len(text.split()) == 4 and " ".join(text.split()[0:2]) == "изменить количество" \
             and is_int(text.split()[-1])):
         #изменяем количество новостей
