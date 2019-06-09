@@ -108,3 +108,4 @@ venv.bak/
 NiMaTaLentaBot.session
 media/
 **.pickle
+**-journal

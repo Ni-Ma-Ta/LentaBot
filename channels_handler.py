@@ -26,7 +26,7 @@ def _send_message(bot, user_id, message):
         bot.send_message(
                 user_id,
                 'Не смог переслать вам сообщение. Вы можете посмотреть его в telegram: http://t.me/{}/{}'.format(
-                    message.chat_id[1:],
+                    message.channel_id[1:],
                     message.id
                     )
                 )
@@ -66,7 +66,7 @@ class ChannelsHandler:
         self.channels[channel_id] = channel_data
         local_stop = Event()
         self.stop_events[channel_id] = local_stop
-        def f(stop_event, user_id, channel_data, messages_collector):
+        def f(stop_event, user_id, channel_data, bot, messages_collector):
             while True:
                 if stop_event.is_set():
                     return
@@ -78,7 +78,7 @@ class ChannelsHandler:
                     _send_message(bot, user_id, msg)
                 sleep(60 * 60 * channel_data.frequency)
 
-        Timer(1, f, [local_stop, self.user_id, self.channels[channel_id], self.msg_collector]).start()
+        Timer(1, f, [local_stop, self.user_id, self.channels[channel_id], self.bot, self.msg_collector]).start()
 
     def del_channel(self, channel_link):
         """

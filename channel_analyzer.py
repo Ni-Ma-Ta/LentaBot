@@ -8,9 +8,9 @@ from secrets import telegram_api_id as api_id, \
         telegram_api_hash as api_hash
 
 class MessageData:
-    def  __init__(self, message, file_path):
+    def  __init__(self, message, chat_id, file_path):
         self.id = message.id
-        self.channel_id = message.chat_id
+        self.channel_id = chat_id
         self.text = message.message
         self.media_type = message.media
         self.file_path = file_path
@@ -52,13 +52,10 @@ class MessagesCollector:
                 sorted_messages.append(iter)
         arr = []
         for x in sorted_messages:
-            filename = 'media/{}/{}'.format(chat_id, str(pickle.dumps(x)))
+            filename = 'media/{}/{}'.format(chat_id, str(x.id))
             print(filename)
             # self.client.download_media(x, filename)
-            if(subprocess.call(['python3', 'download_media.py', str(chat_id), str(x.id)]) == 0):
-                arr.append(MessageData(x, file_path=filename))
-            else:
-                print("download_media.py had a non-zero exit code")
+            arr.append(MessageData(x, chat_id, file_path=filename))
         return arr
 
 if __name__ == "__main__":
