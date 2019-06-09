@@ -20,7 +20,7 @@ def unfalling(func):
             exit(0)
         except:
             try:
-                bot.reply_to(message, "Извините, произошла ошибка. Обратитесь, пожалуйста, к организаторам. Бот продолжит работать в своем обычном режиме.")
+                bot.reply_to(message, "Извините, произошла ошибка. Пожалуйста, обратитесь к разработчикам. Бот продолжит работать в своем обычном режиме")
             except:
                 pass
     return ans
@@ -115,7 +115,6 @@ def answer_success(bot, chat_id, success, ok_message, bad_message, *args, **kwar
 @autodump
 def msg_handler(message):
     text = message.text.lower()
-    all_users[message.chat.id] = all_users.get(message.chat.id, {})
     if(len(text.split()) == 4 and text.split()[0] == "добавить" and is_int(text.split()[2]) \
             and is_int(text.split()[3])):
         #добавляем новый канал
@@ -125,7 +124,7 @@ def msg_handler(message):
             all_users[message.chat.id].add_channel(text.split()[1], int(text.split()[2]), int(text.split()[3])),
             "Канал был успешно добавлен",
             "Не удалось добавить канал. Возможно, следует обратиться к разработчикам",
-            reply_to_message_id=message.chat.id
+            reply_to_message_id=message.message_id
             )
     elif(len(text.split()) == 2 and text.split()[0] == "удалить"):
         #удаляем канал
@@ -134,7 +133,8 @@ def msg_handler(message):
             message.chat.id,
             all_users[message.chat.id].del_channel(text.split()[1]),
             "Я навсегда забыл про этот канал",
-            "Не удалось забыть канал. Возможно, следует обратиться к разработчикам"
+            "Не удалось забыть канал. Возможно, следует обратиться к разработчикам",
+            reply_to_message_id=message.message_id
             )
     elif(len(text.split()) == 4 and " ".join(text.split()[0:2]) == "изменить количество" \
             and is_int(text.split()[-1])):
@@ -144,7 +144,8 @@ def msg_handler(message):
             message.chat.id,
             all_users[message.chat.id].edit_channel(text.split()[2], new_count=int(text.split()[-1])),
             "Теперь я буду присылать вам другое количество новостей по этому каналу",
-            "Не удалось выполнить операцию. Возможно, следует обратиться к разработчикам"
+            "Не удалось выполнить операцию. Возможно, следует обратиться к разработчикам",
+            reply_to_message_id=message.message_id
             )
     elif(len(text.split()) == 4 and " ".join(text.split()[0:2]) == "изменить частоту" \
 	    and is_int(text.split()[-1])):
@@ -154,7 +155,8 @@ def msg_handler(message):
             message.chat.id,
             all_users[message.chat.id].edit_channel(text.split()[2], new_frequency=int(text.split()[3])),
             "Частота успешно обновлена!",
-            "Не удалось выполнить операцию. Возможно, следует обратиться к разработчикам"
+            "Не удалось выполнить операцию. Возможно, следует обратиться к разработчикам",
+            reply_to_message_id=message.message_id
             )
     else:
         bot.reply_to(message, 'Неверный формат. Попробуйте /help')

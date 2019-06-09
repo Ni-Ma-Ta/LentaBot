@@ -57,7 +57,7 @@ class ChannelsHandler:
             self.del_channel(channel_link)
 
         channel_id = get_channel_id(channel_link)
-        if not(len(channel_id) and (channel_id[0] != '@')):
+        if not(len(channel_id) and (channel_id[0] == '@')):
             return {'ok': False, 'user_message': 'Некорректный channel_id'}
 
         channel_data = ChannelData(channel_id, frequency, count)
@@ -71,7 +71,8 @@ class ChannelsHandler:
                 msgs = messages_collector.get_interesting_messages(
                         channel_data.channel_id,
                         channel_data.count,
-                        channel_data.frequency)
+                        channel_data.frequency
+                        )
                 for msg in msgs:
                     _notify(bot, user_id, channel_id, msg)
                 sleep(60 * 60 * channel_data.frequency)
@@ -105,7 +106,7 @@ class ChannelsHandler:
             channel_link,
             new_frequency=None,
             new_count=None
-        ):
+            ):
         """
         @param {str} channel_link Either a t.me link or @ChannelName
         @param (optional) {float} new_frequency How often (in hours) do I have to check
