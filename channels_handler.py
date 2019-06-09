@@ -81,7 +81,7 @@ class ChannelsHandler:
             return {'ok': True}
         except:
             return {'ok': False, 'user_message': 'Произошла ошибка при попытке инициализации потока. \
-                ПОЖАЛУЙСТА, обратитесь к @kolayne'}
+ПОЖАЛУЙСТА, обратитесь к @kolayne'}
 
     def del_channel(self, channel_link):
         """
@@ -98,7 +98,7 @@ class ChannelsHandler:
             return {'ok': True}
         except:
             return {'ok': False, 'user_message': 'Похоже, этот канал не собирается для вас. \
-                Если это не так, пожалуйста, обратитесь к разработчикам'}
+Если это не так, пожалуйста, обратитесь к разработчикам'}
 
     def edit_channel(
             self,
@@ -118,7 +118,7 @@ class ChannelsHandler:
         channel_id = get_channel_id(channel_link)
         if channel_id not in self.channels.keys():
             return {'ok': False, 'user_message': 'Не могу отредактировать \
-                данные о канале: он не добавлен для вас. Используйте "добавить"'}
+данные о канале: он не добавлен для вас. Используйте "добавить"'}
 
         if new_frequency is None:
             new_frequency = self.channels[channel_id].frequency
