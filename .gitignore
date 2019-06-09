@@ -109,3 +109,4 @@ NiMaTaLentaBot.session
 media/
 **.pickle
 **-journal
+**_std**
