@@ -6,12 +6,12 @@ from secrets import telegram_api_id as api_id, \
         telegram_api_hash as api_hash
 
 class MessageData:
-    def  __init__(self, message):
+    def  __init__(self, message, file_path):
         self.id = message.id
         self.channel_id = message.chat_id
         self.text = message.message
         self.media_type = message.media
-        self.file_path = None
+        self.file_path = file_path
 
 class MessagesCollector:
     def __init__(self):
@@ -50,7 +50,10 @@ class MessagesCollector:
                 sorted_messages.append(iter)
         arr = []
         for x in sorted_messages:
-            arr.append(MessageData(x))
+            filename = 'media/{}/{}'.format(chat_id, x.id)
+            print(filename)
+            self.client.download_media(x, filename)
+            arr.append(MessageData(x, file_path=filename))
         return arr
 
 if __name__ == "__main__":
