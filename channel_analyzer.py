@@ -5,6 +5,13 @@ import datetime
 from secrets import telegram_api_id as api_id, \
         telegram_api_hash as api_hash
 
+class MessageData:
+    def  __init__(self, message):
+        self.id = message.id
+        self.channel_id = message.chat_id
+        self.text = message.message
+        self.media_type = message.media
+        self.file_path = None
 
 class MessagesCollector:
     def __init__(self):
@@ -40,10 +47,13 @@ class MessagesCollector:
         sorted_messages = []
         for iter in all_messages:
             if iter.id in messages:
-                sorted_messages.append(iter) 
-        return sorted_messages
+                sorted_messages.append(iter)
+        arr = []
+        for x in sorted_messages:
+            arr.append(MessageData(x))
+        return arr
 
 if __name__ == "__main__":
     a =  MessagesCollector()
-    data = a.get_interesting_messages('@Cbpub', 2, 24)
+    data = a.get_interesting_messages('@Cbpub', 5, 24)
     print(data)
