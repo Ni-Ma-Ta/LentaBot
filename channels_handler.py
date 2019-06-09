@@ -62,10 +62,11 @@ class ChannelsHandler:
         @param {int} count How much interesting messages do I have to send
         """
         channel_id = get_channel_id(channel_link)
-        self.channels[channel_id] = ChannelData(channel_id, frequency, count)
+        channel_data = ChannelData(channel_id, frequency, count)
+        self.channels[channel_id] = channel_data
         local_stop = Event()
         self.stop_events[channel_id] = local_stop
-        def f(stop_event, user_id, channel_data, time_limit, messages_collector):
+        def f(stop_event, user_id, channel_data, messages_collector):
             while True:
                 if stop_event.is_set():
                     return
@@ -75,9 +76,9 @@ class ChannelsHandler:
                         channel_data.frequency)
                 for msg in msgs:
                     _send_message(bot, user_id, msg)
-                sleep(60 * 60 * time_limit)
+                sleep(60 * 60 * channel_data.frequency)
 
-        Timer(1, f, [local_stop, self.user_id, self.channels[channel_id], self.frequency, self.msg_collector]).start()
+        Timer(1, f, [local_stop, self.user_id, self.channels[channel_id], self.msg_collector]).start()
 
     def del_channel(self, channel_link):
         """
@@ -106,7 +107,7 @@ class ChannelsHandler:
         if new_count is None:
             new_count = self.channels[channel_id].count
         self.del_channel(channel_link)
-        self.add_channel(channel_link, frequency, count)
+        self.add_channel(channel_link, new_frequency, new_count)
 
     def dumps(self):
         """
