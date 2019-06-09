@@ -74,6 +74,17 @@ def is_int(s):
     except:
         return False
 
+def is_float(s):
+    """
+    @param {str} s A string to check if it is an int
+    @returns {bool} True, if int(s) can be used, else False
+    """
+    try:
+        float(s)
+        return True
+    except:
+        return False
+
 @bot.message_handler(commands=['stop'])
 @unfalling
 def stop(message):
@@ -97,10 +108,10 @@ def del_user(message):
 def msg_handler(message):
     text = message.text.lower()
     all_users[message.chat.id] = all_users.get(message.chat.id, {})
-    if(len(text.split()) == 4 and text.split()[0] == "добавить" and is_int(text.split()[2]) \
+    if(len(text.split()) == 4 and text.split()[0] == "добавить" and is_float(text.split()[2]) \
             and is_int(text.split()[3])):
         #добавляем новый канал
-        all_users[message.chat.id].add_channel(text.split()[1], int(text.split()[2]), int(text.split()[3]))
+        all_users[message.chat.id].add_channel(text.split()[1], float(text.split()[2]), int(text.split()[3]))
         bot.reply_to(message, "Канал был успешно добавлен. Ловите новости!")
     elif(len(text.split()) == 2 and text.split()[0] == "удалить"):
         #удаляем канал
@@ -112,9 +123,9 @@ def msg_handler(message):
         all_users[message.chat.id].edit_channel(text.split()[2], new_count=int(text.split()[-1]))
         bot.reply_to(message, "Теперь я буду присылать вам другое количество новостей по этому каналу.")
     elif(len(text.split()) == 4 and " ".join(text.split()[0:2]) == "изменить частоту" \
-	    and is_int(text.split()[-1])):
+	    and is_float(text.split()[-1])):
         #изменяем частоту
-        all_users[message.chat.id].edit_channel(text.split()[2], new_frequency=int(text.split()[3]))
+        all_users[message.chat.id].edit_channel(text.split()[2], new_frequency=float(text.split()[3]))
         bot.reply_to(message, "Частота успешно обновлена!")
     else:
         bot.reply_to(message, 'Неверный формат. Попробуйте /help')
