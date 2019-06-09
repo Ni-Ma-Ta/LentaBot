@@ -46,17 +46,7 @@ class MessagesCollector:
         sorted_data.reverse()
         sorted_data = sorted_data[:count]
         messages = [i[0] for i in sorted_data]
-        sorted_messages = []
-        for iter in all_messages:
-            if iter.id in messages:
-                sorted_messages.append(iter)
-        arr = []
-        for x in sorted_messages:
-            filename = 'media/{}/{}'.format(chat_id, str(x.id))
-            print(filename)
-            # self.client.download_media(x, filename)
-            arr.append(MessageData(x, chat_id, file_path=filename))
-        return arr
+        return messages
 
 if __name__ == "__main__":
     a =  MessagesCollector()
