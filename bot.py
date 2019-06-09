@@ -34,7 +34,6 @@ def autodump(func):
     return ans
 
 @bot.message_handler(commands=['start'])
-@safe_user_access
 @autodump
 def init(message):
     if message.chat.id in all_users:
@@ -45,7 +44,7 @@ def init(message):
 @bot.message_handler(commands=['help'])
 @safe_user_access
 def comands(message):
-    bot.reply_to(message, 'Полный список команд: \n\n"Добавить <Название канала> <M> <N>" - Я начну присылать вам N самых популярных новостей выбранного канала каждые M часов. Отсчет времени начнется с момента добавления канала. \n\n"Удалить <Название канала> - Я больше не буду присылать вам новости этого канала. \n\n"Изменить колво новостей <Название канала> <N>" - Теперь я буду присылать вам N новостей по этому каналу. \n\n"Изменить частоту <Название канала> <M>" - Я буду присылать вам новости этого канала каждые M часов.\n\n\n /stop - Прекратить со мной общение.')
+    bot.reply_to(message, 'Полный список команд: \n\n"Добавить <Название канала> <M> <N>" - Я начну присылать вам N самых популярных новостей выбранного канала каждые M часов. Отсчет времени начнется с момента добавления канала. \n\n"Удалить <Название канала> - Я больше не буду присылать вам новости этого канала. \n\n"Изменить количество <Название канала> <N>" - Теперь я буду присылать вам N новостей по этому каналу. \n\n"Изменить частоту <Название канала> <M>" - Я буду присылать вам новости этого канала каждые M часов.\n\n\n /stop - Прекратить со мной общение.')
 
 def is_int(s):
     """
@@ -87,10 +86,10 @@ def msg_handler(message):
         #удаляем канал
         all_users[message.chat.id].del_channel(text.split()[1])
         bot.reply_to(message, "Я совершенно забыл про этот канал.")
-    elif(len(text.split()) == 5 and " ".join(text.split()[0:3]) == "изменить количество новостей" \
+    elif(len(text.split()) == 4 and " ".join(text.split()[0:2]) == "изменить количество" \
             and is_int(text.split()[-1])):
         #изменяем количество новостей
-        all_users[message.chat.id].edit_channel(text.split()[3], new_count=int(text.split()[-1]))
+        all_users[message.chat.id].edit_channel(text.split()[2], new_count=int(text.split()[-1]))
         bot.reply_to(message, "Теперь я буду присылать вам другое количество новостей по этому каналу.")
     elif(len(text.split()) == 4 and " ".join(text.split()[0:2]) == "изменить частоту" \
 	    and is_int(text.split()[-1])):
