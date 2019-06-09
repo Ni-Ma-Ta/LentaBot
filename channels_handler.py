@@ -125,7 +125,7 @@ class ChannelsHandler:
         @param {list[ChannelData]} data An array of ChannelData to be saved now
         @returns {ChannelsHandler} Returns the created object (self)
         """
-        for channel_data in data:
+        for channel_data in data.values():
             self.add_channel(
                 channel_data.channel_id,
                 channel_data.frequency,
