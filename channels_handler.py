@@ -49,10 +49,17 @@ class ChannelsHandler:
         @param {int} frequency How often (in hours) do I have to check
             new messages in the channel
         @param {int} count How much interesting messages do I have to send
+        @returns {dict} A dictionary with the following keys:
+            {bool} ok Whether the execution succeeded or not
+            {str} user_message (optional) A message to be shown for user
         """
         if(channel_link in self.channels.keys()):
             self.del_channel(channel_link)
+
         channel_id = get_channel_id(channel_link)
+        if not(len(channel_id) and (channel_id[0] != '@')):
+            return {'ok': False, 'user_message': 'Некорректный channel_id'}
+
         channel_data = ChannelData(channel_id, frequency, count)
         self.channels[channel_id] = channel_data
         local_stop = Event()
@@ -69,16 +76,29 @@ class ChannelsHandler:
                     _notify(bot, user_id, channel_id, msg)
                 sleep(60 * 60 * channel_data.frequency)
 
-        Timer(1, f, [local_stop, self.user_id, self.channels[channel_id], self.bot, self.msg_collector]).start()
+        try:
+            Timer(1, f, [local_stop, self.user_id, self.channels[channel_id], self.bot, self.msg_collector]).start()
+            return {'ok': True}
+        except:
+            return {'ok': False, 'user_message': 'Произошла ошибка при попытке инициализации потока. \
+                ПОЖАЛУЙСТА, обратитесь к @kolayne'}
 
     def del_channel(self, channel_link):
         """
         @param {str} channel_link Either a t.me link or @ChannelName
+        @returns {dict} A dictionary with the following keys:
+            {bool} ok Whether the execution succeeded or not
+            {str} user_message (optional) A message to be shown for user
         """
         channel_id = get_channel_id(channel_link)
-        self.stop_events[channel_id].set()
-        del self.stop_events[channel_id]
-        del self.channels[channel_id]
+        try:
+            self.stop_events[channel_id].set()
+            del self.stop_events[channel_id]
+            del self.channels[channel_id]
+            return {'ok': True}
+        except:
+            return {'ok': False, 'user_message': 'Похоже, этот канал не собирается для вас. \
+                Если это не так, пожалуйста, обратитесь к разработчикам'}
 
     def edit_channel(
             self,
@@ -91,14 +111,22 @@ class ChannelsHandler:
         @param (optional) {float} new_frequency How often (in hours) do I have to check
             new messages in the channel
         @param (optional) {int} new_count How much interesting messages do I have to send
+        @returns {dict} A dictionary with the following keys:
+            {bool} ok Whether the execution succeeded or not
+            {str} user_message (optional) A message to be shown for user
         """
         channel_id = get_channel_id(channel_link)
+        if channel_id not in self.channels.keys():
+            return {'ok': False, 'user_message': 'Не могу отредактировать \
+                данные о канале: он не добавлен для вас. Используйте "добавить"'}
+
         if new_frequency is None:
             new_frequency = self.channels[channel_id].frequency
         if new_count is None:
             new_count = self.channels[channel_id].count
         self.del_channel(channel_link)
         self.add_channel(channel_link, new_frequency, new_count)
+        return {'ok': True}
 
     def dumps(self):
         """

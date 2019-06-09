@@ -90,6 +90,25 @@ def del_user(message):
     bot.reply_to(message, 'Можете считать, что меня никогда не существовало.. Пока-пока')
     del all_users[message.chat.id]
 
+def answer_success(bot, chat_id, success, ok_message, bad_message, *args, **kwargs):
+    """
+    @param {telebot.TeleBot} bot A telegram bot to send message from
+    @param {int} chat_id The chat id to send message to
+    @param {dict} success Information about command execution result
+    @param {str} ok_message What to reply if the execution succeeded
+        and there're nothing to reply from command
+    @param {str} bad_message What to reply if the execution didn't succeed
+        and there're nothing to reply from command
+    @param {ANY} *args These arguments will be given to send_message
+    @param {ANY} **kwargs These arguments will be given to send_message
+    """
+    if 'user_message' in success:
+        bot.send_message(chat_id, success['user_message'], *args, **kwargs)
+    elif success['ok']:
+        bot.send_message(chat_id, ok_message, *args, **kwargs)
+    else:
+        bot.send_message(chat_id, bad_message, *args, **kwargs)
+
 @bot.message_handler()
 @unfalling
 @safe_user_access
@@ -100,22 +119,43 @@ def msg_handler(message):
     if(len(text.split()) == 4 and text.split()[0] == "добавить" and is_int(text.split()[2]) \
             and is_int(text.split()[3])):
         #добавляем новый канал
-        all_users[message.chat.id].add_channel(text.split()[1], int(text.split()[2]), int(text.split()[3]))
-        bot.reply_to(message, "Канал был успешно добавлен. Ловите новости!")
+        answer_success(
+            bot,
+            message.chat.id,
+            all_users[message.chat.id].add_channel(text.split()[1], int(text.split()[2]), int(text.split()[3])),
+            "Канал был успешно добавлен",
+            "Не удалось добавить канал. Возможно, следует обратиться к разработчикам",
+            reply_to_message_id=message.chat.id
+            )
     elif(len(text.split()) == 2 and text.split()[0] == "удалить"):
         #удаляем канал
-        all_users[message.chat.id].del_channel(text.split()[1])
-        bot.reply_to(message, "Я навсегда забыл про этот канал.")
+        answer_success(
+            bot,
+            message.chat.id,
+            all_users[message.chat.id].del_channel(text.split()[1]),
+            "Я навсегда забыл про этот канал",
+            "Не удалось забыть канал. Возможно, следует обратиться к разработчикам"
+            )
     elif(len(text.split()) == 4 and " ".join(text.split()[0:2]) == "изменить количество" \
             and is_int(text.split()[-1])):
         #изменяем количество новостей
-        all_users[message.chat.id].edit_channel(text.split()[2], new_count=int(text.split()[-1]))
-        bot.reply_to(message, "Теперь я буду присылать вам другое количество новостей по этому каналу.")
+        answer_success(
+            bot,
+            message.chat.id,
+            all_users[message.chat.id].edit_channel(text.split()[2], new_count=int(text.split()[-1])),
+            "Теперь я буду присылать вам другое количество новостей по этому каналу",
+            "Не удалось выполнить операцию. Возможно, следует обратиться к разработчикам"
+            )
     elif(len(text.split()) == 4 and " ".join(text.split()[0:2]) == "изменить частоту" \
 	    and is_int(text.split()[-1])):
         #изменяем частоту
-        all_users[message.chat.id].edit_channel(text.split()[2], new_frequency=int(text.split()[3]))
-        bot.reply_to(message, "Частота успешно обновлена!")
+        answer_success(
+            bot,
+            message.chat.id,
+            all_users[message.chat.id].edit_channel(text.split()[2], new_frequency=int(text.split()[3])),
+            "Частота успешно обновлена!",
+            "Не удалось выполнить операцию. Возможно, следует обратиться к разработчикам"
+            )
     else:
         bot.reply_to(message, 'Неверный формат. Попробуйте /help')
 
@@ -125,5 +165,5 @@ if __name__ == "__main__":
         with open("userdata.pickle", "rb") as f:
             all_users = {k: ChannelsHandler(bot, k, msg_collector).loads(v) for k, v in pickle.load(f).items()}
         for user in all_users:
-            bot.send_message(user, "Извините, бот был перезагружен. Но не волнуйтесь! Мы сохранили ваши настройки. Время отправки новостей будет отсчитываться с текущего момента. Ловите новости!")
+            bot.send_message(user, "Извините, бот был перезагружен. Но не волнуйтесь! Мы сохранили ваши настройки. Время отправки новостей будет отсчитываться с текущего момента")
     bot.polling(none_stop=False)
