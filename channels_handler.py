@@ -108,7 +108,7 @@ class ChannelsHandler:
         self.del_channel(channel_link)
         self.add_channel(channel_link, frequency, count)
 
-    def dump(self):
+    def dumps(self):
         """
         This function returns a data that can be used in future to
         create a ChannelsHandler with same settigns as this one
@@ -117,12 +117,13 @@ class ChannelsHandler:
         """
         return self.channels
 
-    def load(self, data):
+    def loads(self, data):
         """
         Takes data from the self.dump function and makes this object
         be set up in the same way as the dumped object was
 
         @param {list[ChannelData]} data An array of ChannelData to be saved now
+        @returns {ChannelsHandler} Returns the created object (self)
         """
         for channel_data in data:
             self.add_channel(
@@ -130,3 +131,4 @@ class ChannelsHandler:
                 channel_data.frequency,
                 channel_data.count
                 )
+        return self
