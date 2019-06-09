@@ -33,16 +33,12 @@ class MessagesCollector:
         all_messages = []
         data = {}
         today = datetime.datetime.utcnow()
-        limit_date = today - datetime.timedelta(hours=time_limit)
-        limit_date = limit_date.replace(tzinfo=datetime.timezone.utc)
-        '''
         if today.hour - time_limit < 0:
             limit_date = datetime.datetime(hour=today.hour-time_limit + 24, minute=today.minute, second=today.second,  \
                 day=today.day - 1, month=today.month, year=today.year, tzinfo=datetime.timezone.utc)
         else:
             limit_date = datetime.datetime(hour=today.hour-time_limit, minute=today.minute, second=today.second,  \
                 day=today.day, month=today.month, year=today.year, tzinfo=datetime.timezone.utc)
-        '''
         for message in self.client.iter_messages(chat_id, offset_date=limit_date, reverse=True):
             data[message.id] = message.views
             all_messages.append(message)
@@ -52,7 +48,3 @@ class MessagesCollector:
         messages = [i[0] for i in sorted_data]
         return messages
 
-if __name__ == "__main__":
-    a =  MessagesCollector()
-    data = a.get_interesting_messages('@Cbpub', 5, 0.017)
-    print(data)
