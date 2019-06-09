@@ -107,7 +107,7 @@ class ChannelsHandler:
         if new_count is None:
             new_count = self.channels[channel_id].count
         self.del_channel(channel_link)
-        self.add_channel(channel_link, frequency, count)
+        self.add_channel(channel_link, new_frequency, new_count)
 
     def dumps(self):
         """
