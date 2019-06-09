@@ -21,6 +21,7 @@ class MessagesCollector:
         @param {int} time_limit Amount of hours, so messages, which have been send after current time - this amount of hours, will be included into comparison  
         @returns {list} List, which contains ids, which belong to most popular messsages in this chat 
         '''
+        all_messages = []
         data = {}
         today = datetime.datetime.utcnow()
         if today.hour - time_limit < 0:
@@ -31,13 +32,18 @@ class MessagesCollector:
                 day=today.day, month=today.month, year=today.year, tzinfo=datetime.timezone.utc)
         for message in self.client.iter_messages(chat_id, offset_date=limit_date, reverse=True):
             data[message.id] = message.views
+            all_messages.append(message)
         sorted_data = sorted(data.items(), key=operator.itemgetter(1))
         sorted_data.reverse()
         sorted_data = sorted_data[:count]
         messages = [i[0] for i in sorted_data]
-        return messages
+        sorted_messages = []
+        for iter in all_messages:
+            if iter.id in messages:
+                sorted_messages.append(iter) 
+        return sorted_messages
 
 if __name__ == "__main__":
     a =  MessagesCollector()
-    data = a.get_interesting_messages('@Cbpub', 5, 24)
+    data = a.get_interesting_messages('@Cbpub', 2, 24)
     print(data)
