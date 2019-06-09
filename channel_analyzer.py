@@ -33,7 +33,7 @@ class MessagesCollector:
         all_messages = []
         data = {}
         today = datetime.datetime.utcnow()
-        limit_date = today - datetime.timedelta(hours=int(time_limit), minutes=round((time_limit - int(time_limit)) * 60))
+        limit_date = today - datetime.timedelta(hours=time_limit)
         limit_date = limit_date.replace(tzinfo=datetime.timezone.utc)
         '''
         if today.hour - time_limit < 0:

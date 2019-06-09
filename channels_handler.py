@@ -46,10 +46,12 @@ class ChannelsHandler:
     def add_channel(self, channel_link, frequency, count):
         """
         @param {str} channel_link Either a t.me link or @ChannelName
-        @param {float} frequency How often (in hours) do I have to check
+        @param {int} frequency How often (in hours) do I have to check
             new messages in the channel
         @param {int} count How much interesting messages do I have to send
         """
+        if(channel_link in self.channels.keys()):
+            self.del_channel(channel_link)
         channel_id = get_channel_id(channel_link)
         channel_data = ChannelData(channel_id, frequency, count)
         self.channels[channel_id] = channel_data
