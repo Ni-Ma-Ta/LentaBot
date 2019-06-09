@@ -13,23 +13,12 @@ def get_channel_id(chat_link):
     return ans
 
 
-def _send_message(bot, user_id, message):
-    '''if message.media_type == 'video':
-        pass
-    elif message.media_type == 'photo':
-        pass
-    el'''
-    if message.media_type is None:
-        prologue = 'Сообщение из {}:\n\n\n'.format(bot.channel_id)
-        bot.send_message(user_id, prologue + message.text)
-    else:
-        bot.send_message(
-                user_id,
-                'Не смог переслать вам сообщение. Вы можете посмотреть его в telegram: http://t.me/{}/{}'.format(
-                    message.channel_id[1:],
-                    message.id
-                    )
-                )
+def _notify(bot, user_id, channel_id, message_id):
+    bot.send_message(user_id, "Сообщение из {}:\n\nt.me/{}/{}".format(
+        channel_id,
+        channel_id[1:],
+        message_id
+        )
 
 
 class ChannelData:
@@ -75,7 +64,7 @@ class ChannelsHandler:
                         channel_data.count,
                         channel_data.frequency)
                 for msg in msgs:
-                    _send_message(bot, user_id, msg)
+                    _notify(bot, user_id, channel_id, msg)
                 sleep(60 * 60 * channel_data.frequency)
 
         Timer(1, f, [local_stop, self.user_id, self.channels[channel_id], self.bot, self.msg_collector]).start()
