@@ -1,6 +1,8 @@
 import telethon.sync as telethon
 import operator
 import datetime
+import subprocess
+import pickle
 
 from secrets import telegram_api_id as api_id, \
         telegram_api_hash as api_hash
@@ -50,10 +52,13 @@ class MessagesCollector:
                 sorted_messages.append(iter)
         arr = []
         for x in sorted_messages:
-            filename = 'media/{}/{}'.format(chat_id, x.id)
+            filename = 'media/{}/{}'.format(chat_id, str(pickle.dumps(x)))
             print(filename)
-            self.client.download_media(x, filename)
-            arr.append(MessageData(x, file_path=filename))
+            # self.client.download_media(x, filename)
+            if(subprocess.call(['python3', 'download_media.py', str(chat_id), str(x.id)]) == 0):
+                arr.append(MessageData(x, file_path=filename))
+            else:
+                print("download_media.py had a non-zero exit code")
         return arr
 
 if __name__ == "__main__":
