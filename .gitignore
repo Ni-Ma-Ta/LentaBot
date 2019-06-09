@@ -106,3 +106,4 @@ venv.bak/
 # Local
 **secrets**
 NiMaTaLentaBot.session
+**.pickle

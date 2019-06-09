@@ -1,4 +1,6 @@
 import telebot
+import pickle
+from os.path import isfile
 
 from secrets import telebot_token
 from channel_analyzer import MessagesCollector
@@ -20,8 +22,20 @@ def safe_user_access(func):
         return func(message, *args, **kwargs)
     return ans
 
+def autodump(func):
+    def ans(*args, **kwargs):
+        result = func(*args, **kwargs)
+        with open("userdata.pickle", "wb") as f:
+            pickle.dump(
+                    {k: v.dumps() for k, v in all_users.items()},
+                    f
+                    )
+        return result
+    return ans
+
 @bot.message_handler(commands=['start'])
 @safe_user_access
+@autodump
 def init(message):
     if message.chat.id in all_users:
         bot.reply_to(message, 'Вы уже зарегистрированы. Если вы хотите сбросить все настройки, то пришлите /stop')
@@ -45,18 +59,22 @@ def is_int(s):
         return False
 
 @bot.message_handler(commands=['stop'])
-@safe_user_access
 def stop(message):
-    bot.reply_to(message, 'Вы уверены, что хотите прекратить общаться? Если да, то пришлите мне /yesstop.')
+    if message.chat.id in all_users:
+        bot.reply_to(message, 'Вы уверены, что хотите прекратить общаться? Все ваши настройки сбросятся! Если вы согласны, то пришлите мне /yesstop.')
+        return
+    bot.reply_to(message, "Вы просите меня забыть вас, но мы даже не были знакомы... Чтобы познакомиться, пришлите /start")
 
 @bot.message_handler(commands=['yesstop'])
 @safe_user_access
+@autodump
 def del_user(message):
-    bot.reply_to(message, 'Пока-пока')
+    bot.reply_to(message, 'Можете считать, что меня никогда не существовало.. Пока-пока')
     del all_users[message.chat.id]
 
 @bot.message_handler()
 @safe_user_access
+@autodump
 def msg_handler(message):
     text = message.text.lower()
     all_users[message.chat.id] = all_users.get(message.chat.id, {})
@@ -64,20 +82,29 @@ def msg_handler(message):
             and is_int(text.split()[3])):
         #добавляем новый канал
         all_users[message.chat.id].add_channel(text.split()[1], int(text.split()[2]), int(text.split()[3]))
+        bot.reply_to(message, "Канал был успешно добавлен. Ловите новости!")
     elif(len(text.split()) == 2 and text.split()[0] == "удалить"):
         #удаляем канал
         all_users[message.chat.id].del_channel(text.split()[1])
+        bot.reply_to(message, "Я совершенно забыл про этот канал.")
     elif(len(text.split()) == 5 and " ".join(text.split()[0:3]) == "изменить количество новостей" \
             and is_int(text.split()[-1])):
         #изменяем количество новостей
         all_users[message.chat.id].edit_channel(text.split()[3], new_count=int(text.split()[-1]))
+        bot.reply_to(message, "Теперь я буду присылать вам другое количество новостей по этому каналу.")
     elif(len(text.split()) == 4 and " ".join(text.split()[0:2]) == "изменить частоту" \
 	    and is_int(text.split()[-1])):
         #изменяем частоту
         all_users[message.chat.id].edit_channel(text.split()[2], new_frequency=int(text.split()[3]))
+        bot.reply_to(message, "Частота успешно обновлена!")
     else:
         bot.reply_to(message, 'Неверный формат. Попробуйте /help')
 
 
 if __name__ == "__main__":
+    if isfile("userdata.pickle"):
+        with open("userdata.pickle", "rb") as f:
+            all_users = {k: ChannelsHandler(bot, k, msg_collector).loads(v) for k, v in pickle.load(f).items()}
+        for user in all_users:
+            bot.send_message(user, "Извините, бот был перезагружен. Но не волнуйтесь! Мы сохранили ваши настройки. Время отправки новостей будет отсчитываться с текущего момента. Ловите новости!")
     bot.polling(none_stop=False)
