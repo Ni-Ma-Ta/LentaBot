@@ -32,13 +32,17 @@ class MessagesCollector:
         '''
         all_messages = []
         data = {}
+        data_delta = 0
+        hours_delta = 0
+        data_delta += time_limit // 24
+        hours_delta += time_limit % 24
         today = datetime.datetime.utcnow()
-        if today.hour - time_limit < 0:
-            limit_date = datetime.datetime(hour=today.hour-time_limit + 24, minute=today.minute, second=today.second,  \
-                day=today.day - 1, month=today.month, year=today.year, tzinfo=datetime.timezone.utc)
+        if today.hour - hours_delta < 0:
+            limit_date = datetime.datetime(hour=today.hour - hours_delta + 24, minute=today.minute, second=today.second,  \
+                day=today.day - data_delta - 1, month=today.month, year=today.year, tzinfo=datetime.timezone.utc)
         else:
-            limit_date = datetime.datetime(hour=today.hour-time_limit, minute=today.minute, second=today.second,  \
-                day=today.day, month=today.month, year=today.year, tzinfo=datetime.timezone.utc)
+            limit_date = datetime.datetime(hour=today.hour - hours_delta, minute=today.minute, second=today.second,  \
+                day=today.day - data_delta, month=today.month, year=today.year, tzinfo=datetime.timezone.utc)
         for message in self.client.iter_messages(chat_id, offset_date=limit_date, reverse=True):
             data[message.id] = message.views
             all_messages.append(message)
@@ -47,4 +51,7 @@ class MessagesCollector:
         sorted_data = sorted_data[:count]
         messages = [i[0] for i in sorted_data]
         return messages
-
+if __name__ == '__main__':
+    a = MessagesCollector()
+    data = a.get_interesting_messages("@Cbpub", 5 ,72)
+    print(data)
