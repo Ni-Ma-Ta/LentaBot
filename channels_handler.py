@@ -65,7 +65,7 @@ class ChannelsHandler:
         self.channels[channel_id] = ChannelData(channel_id, frequency, count)
         local_stop = Event()
         self.stop_events[channel_id] = local_stop
-        def f(stop_event, user_id, channel_data, messages_collector):
+        def f(stop_event, user_id, channel_data, time_limit, messages_collector):
             while True:
                 if stop_event.is_set():
                     return
@@ -77,7 +77,7 @@ class ChannelsHandler:
                     _send_message(bot, user_id, msg)
                 sleep(60 * 60 * time_limit)
 
-        Timer(1, f, [local_stop, self.user_id, self.channels[channel_id], self.msg_collector]).start()
+        Timer(1, f, [local_stop, self.user_id, self.channels[channel_id], self.frequency, self.msg_collector]).start()
 
     def del_channel(self, channel_link):
         """
