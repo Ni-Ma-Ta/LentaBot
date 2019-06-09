@@ -18,7 +18,7 @@ def _notify(bot, user_id, channel_id, message_id):
         channel_id,
         channel_id[1:],
         message_id
-        )
+        ))
 
 
 class ChannelData:
