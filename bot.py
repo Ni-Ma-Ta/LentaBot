@@ -7,6 +7,18 @@ from channel_analyzer import MessagesCollector
 from channels_handler import ChannelsHandler
 
 
+def is_int(s):
+    """
+    @param {str} s A string to check if it is an int
+    @returns {bool} True, if int(s) can be used, else False
+    """
+    try:
+        int(s)
+        return True
+    except:
+        return False
+
+
 bot = telebot.TeleBot(telebot_token)
 msg_collector = MessagesCollector()
 all_users = dict()
@@ -24,7 +36,6 @@ def unfalling(func):
             except:
                 pass
     return ans
-
 
 def safe_user_access(func):
     def ans(message, *args, **kwargs):
@@ -53,7 +64,7 @@ def autodump(func):
 @autodump
 def init(message):
     if message.chat.id in all_users:
-        bot.reply_to(message, 'Вы уже зарегистрированы. Если вы хотите сбросить все настройки, то пришлите /stop')
+        bot.reply_to(message, 'Вы уже зарегистрированы. Если вы хотите сбросить все настройки, то попрощайтесь со мной (команда /stop), а затем познакомьтесь снова (/start)')
     else:
         bot.reply_to(message, 'Привет! Я симулирую ленту наиболее популярных новостей по выбранным вами каналам. \nДля того, чтобы начать, пришлите мне "Добавить <@Упоминание_канала> [M] [N]". Я начну присылать вам N новостей по этому каналу каждые M часов. \n\nЧтобы посмотреть полный список команд, пришлите /help')
 
@@ -61,18 +72,30 @@ def init(message):
 @unfalling
 @safe_user_access
 def comands(message):
-    bot.reply_to(message, 'Полный список команд: \n\n"Добавить <@Упоминание_канала> <M> <N>" - Я начну присылать вам N самых популярных новостей выбранного канала каждые M часов. Отсчет времени начнется с момента добавления канала. \n\n"Удалить <@Упоминание_канала> - Я больше не буду присылать вам новости этого канала. \n\n"Изменить количество <@Упоминание_канала> <N>" - Теперь я буду присылать вам N новостей по этому каналу. \n\n"Изменить частоту <@Упоминание_канала> <M>" - Я буду присылать вам новости этого канала каждые M часов.\n\n\n /stop - Прекратить со мной общение.')
+    bot.reply_to(message, 'Полный список команд:\n\n\
+"Добавить <@Упоминание_канала> <M> <N>" - Я начну присылать вам N самых популярных новостей выбранного канала каждые M часов. Отсчет времени начнется с момента добавления канала\n\n\
+"Удалить <@Упоминание_канала> - Я больше не буду присылать вам новости этого канала\n\n\
+"Изменить количество <@Упоминание_канала> <N>" - Теперь я буду присылать вам N новостей по этому каналу\n\n\
+"Изменить частоту <@Упоминание_канала> <M>" - Я буду присылать вам новости этого канала каждые M часов\n\n\n\
+/list - посмотреть мои каналы\n\
+/stop - Прекратить общение со мной')
 
-def is_int(s):
-    """
-    @param {str} s A string to check if it is an int
-    @returns {bool} True, if int(s) can be used, else False
-    """
-    try:
-        int(s)
-        return True
-    except:
-        return False
+@bot.message_handler(commands=['list'])
+@unfalling
+def list_channels(message):
+    if message.chat.id not in all_users.keys():
+        bot.reply_to(message, "Кажется, мы еще не знакомы...")
+    elif all_users[message.chat.id] == {}:
+        bot.reply_to(message, "У вас нет отслеживаемых каналов")
+    else:
+        ans = ''
+        for channel in all_users[message.chat.id].values():
+            ans += 'Для канала {} присылаю {} сообщений каждые {} часов\n'.format(
+                channel.channel_id,
+                channel.count,
+                channel.frequency
+                )
+        bot.reply_to(message, ans)
 
 @bot.message_handler(commands=['stop'])
 @unfalling
@@ -99,8 +122,8 @@ def answer_success(bot, chat_id, success, ok_message, bad_message, *args, **kwar
         and there're nothing to reply from command
     @param {str} bad_message What to reply if the execution didn't succeed
         and there're nothing to reply from command
-    @param {ANY} *args These arguments will be given to send_message
-    @param {ANY} **kwargs These arguments will be given to send_message
+    @params {ANY} *args These arguments will be given to send_message
+    @params {ANY} **kwargs These arguments will be given to send_message
     """
     if 'user_message' in success:
         bot.send_message(chat_id, success['user_message'], *args, **kwargs)
@@ -166,6 +189,6 @@ if __name__ == "__main__":
     if isfile("userdata.pickle"):
         with open("userdata.pickle", "rb") as f:
             all_users = {k: ChannelsHandler(bot, k, msg_collector).loads(v) for k, v in pickle.load(f).items()}
-        for user in all_users:
+        for user in all_users.keys():
             bot.send_message(user, "Извините, бот был перезагружен. Но не волнуйтесь! Мы сохранили ваши настройки. Время отправки новостей будет отсчитываться с текущего момента")
     bot.polling(none_stop=False)

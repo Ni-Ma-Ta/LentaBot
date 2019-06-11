@@ -152,4 +152,5 @@ class ChannelsHandler:
                 channel_data.frequency,
                 channel_data.count
                 )
+            sleep(1)
         return self

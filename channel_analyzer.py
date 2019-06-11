@@ -1,7 +1,6 @@
 import telethon.sync as telethon
 import operator
 import datetime
-import subprocess
 import pickle
 
 from secrets import telegram_api_id as api_id, \
@@ -44,13 +43,17 @@ class MessagesCollector:
             limit_date = datetime.datetime(hour=today.hour - hours_delta, minute=today.minute, second=today.second,  \
                 day=today.day - data_delta, month=today.month, year=today.year, tzinfo=datetime.timezone.utc)
         for message in self.client.iter_messages(chat_id, offset_date=limit_date, reverse=True):
-            data[message.id] = message.views
+            try:
+                data[message.id] = int(message.views)
+            except:
+                data[message.id] = 0
             all_messages.append(message)
         sorted_data = sorted(data.items(), key=operator.itemgetter(1))
         sorted_data.reverse()
         sorted_data = sorted_data[:count]
         messages = [i[0] for i in sorted_data]
         return messages
+
 if __name__ == '__main__':
     a = MessagesCollector()
     data = a.get_interesting_messages("@Cbpub", 5 ,72)
