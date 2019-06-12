@@ -23,6 +23,27 @@ bot = telebot.TeleBot(telebot_token)
 msg_collector = MessagesCollector()
 all_users = dict()
 
+
+def answer_success(bot, chat_id, success, ok_message, bad_message, *args, **kwargs):
+    """
+    @param {telebot.TeleBot} bot A telegram bot to send message from
+    @param {int} chat_id The chat id to send message to
+    @param {dict} success Information about command execution result
+    @param {str} ok_message What to reply if the execution succeeded
+        and there're nothing to reply from command
+    @param {str} bad_message What to reply if the execution didn't succeed
+        and there're nothing to reply from command
+    @params {ANY} *args These arguments will be given to send_message
+    @params {ANY} **kwargs These arguments will be given to send_message
+    """
+    if 'user_message' in success:
+        bot.send_message(chat_id, success['user_message'], *args, **kwargs)
+    elif success['ok']:
+        bot.send_message(chat_id, ok_message, *args, **kwargs)
+    else:
+        bot.send_message(chat_id, bad_message, *args, **kwargs)
+
+
 def unfalling(func):
     def ans(message, *args, **kwargs):
         try:
@@ -60,9 +81,9 @@ def autodump(func):
         return result
     return ans
 
+
 @bot.message_handler(commands=['start'])
 @unfalling
-@autodump
 def init(message):
     if message.chat.id in all_users:
         bot.reply_to(message, 'Вы уже зарегистрированы. Если вы хотите сбросить все настройки, то попрощайтесь со мной (команда /stop), а затем познакомьтесь снова (/start)')
@@ -113,25 +134,6 @@ def stop(message):
 def del_user(message):
     bot.reply_to(message, 'Можете считать, что меня никогда не существовало.. Пока-пока')
     del all_users[message.chat.id]
-
-def answer_success(bot, chat_id, success, ok_message, bad_message, *args, **kwargs):
-    """
-    @param {telebot.TeleBot} bot A telegram bot to send message from
-    @param {int} chat_id The chat id to send message to
-    @param {dict} success Information about command execution result
-    @param {str} ok_message What to reply if the execution succeeded
-        and there're nothing to reply from command
-    @param {str} bad_message What to reply if the execution didn't succeed
-        and there're nothing to reply from command
-    @params {ANY} *args These arguments will be given to send_message
-    @params {ANY} **kwargs These arguments will be given to send_message
-    """
-    if 'user_message' in success:
-        bot.send_message(chat_id, success['user_message'], *args, **kwargs)
-    elif success['ok']:
-        bot.send_message(chat_id, ok_message, *args, **kwargs)
-    else:
-        bot.send_message(chat_id, bad_message, *args, **kwargs)
 
 @bot.message_handler()
 @unfalling

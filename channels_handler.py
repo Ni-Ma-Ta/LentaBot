@@ -1,3 +1,4 @@
+import requests
 from threading import Timer, Event
 from time import sleep
 
@@ -11,6 +12,20 @@ def get_channel_id(chat_link):
             .replace('https://', '') \
             .replace('t.me/', '@')
     return ans
+
+def is_a_channel(channel_id):
+    """
+    @param {str} channel_id A string to be checked if it's a channel id
+    @returns {bool} True if the given string is a channel id, otherwise False
+    """
+    if(len(channel_id) < 2):
+        return False
+    if(channel_id[0] != '@'):
+        return False
+    url = 'https://t.me/s/{}'.format(channel_id[1:])
+    r = requests.get(url)
+    main_part = lambda x: x.split('://')[1:]
+    return (r.status_code == 200) and (main_part(url) == main_part(r.url))
 
 
 def _notify(bot, user_id, channel_id, message_id):
@@ -57,8 +72,8 @@ class ChannelsHandler:
             self.del_channel(channel_link)
 
         channel_id = get_channel_id(channel_link)
-        '''if not self.msg_collector.is_channel(channel_id):
-            return {'ok': False, 'user_message': 'Некорректный channel_id'}'''
+        if not is_a_channel(channel_id):
+            return {'ok': False, 'user_message': 'Не является публичным каналом telegram'}
 
         channel_data = ChannelData(channel_id, frequency, count)
         self.channels[channel_id] = channel_data
