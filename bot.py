@@ -30,7 +30,8 @@ def unfalling(func):
             return result
         except KeyboardInterrupt:
             exit(0)
-        except:
+        except Exception as e:
+            print(e)
             try:
                 bot.reply_to(message, "Извините, произошла ошибка. Пожалуйста, обратитесь к разработчикам. Бот продолжит работать в своем обычном режиме")
             except:
@@ -89,7 +90,7 @@ def list_channels(message):
         bot.reply_to(message, "У вас нет отслеживаемых каналов")
     else:
         ans = ''
-        for channel in all_users[message.chat.id].values():
+        for channel in all_users[message.chat.id].channels.values():
             ans += 'Для канала {} присылаю {} сообщений каждые {} часов\n'.format(
                 channel.channel_id,
                 channel.count,

@@ -1,6 +1,8 @@
-import telethon.sync as telethon
 import operator
 import datetime
+from threading import Lock
+
+import telethon.sync as telethon
 import pickle
 
 from secrets import telegram_api_id as api_id, \
@@ -18,43 +20,51 @@ class MessagesCollector:
     def __init__(self):
         self.client = telethon.TelegramClient('NiMaTaLentaBot', api_id, api_hash)
         self.client.connect()
+        self._mutex = Lock()
 
     def __del__(self):
+        self._mutex.acquire()
         self.client.disconnect()
 
     def get_interesting_messages(self, chat_id, count, time_limit):
-        '''
-        @param {str} chat_id A string, which contain chat share link
-        @param {int} count Amount of the most popular messages, which ids will be return
-        @param {int} time_limit Amount of hours, so messages, which have been send after current time - this amount of hours, will be included into comparison  
-        @returns {list} List, which contains ids, which belong to most popular messsages in this chat 
-        '''
-        all_messages = []
-        data = {}
-        data_delta = 0
-        hours_delta = 0
-        data_delta += time_limit // 24
-        hours_delta += time_limit % 24
-        today = datetime.datetime.utcnow()
-        if today.hour - hours_delta < 0:
-            limit_date = datetime.datetime(hour=today.hour - hours_delta + 24, minute=today.minute, second=today.second,  \
-                day=today.day - data_delta - 1, month=today.month, year=today.year, tzinfo=datetime.timezone.utc)
-        else:
-            limit_date = datetime.datetime(hour=today.hour - hours_delta, minute=today.minute, second=today.second,  \
-                day=today.day - data_delta, month=today.month, year=today.year, tzinfo=datetime.timezone.utc)
-        for message in self.client.iter_messages(chat_id, offset_date=limit_date, reverse=True):
-            try:
-                data[message.id] = int(message.views)
-            except:
-                data[message.id] = 0
-            all_messages.append(message)
-        sorted_data = sorted(data.items(), key=operator.itemgetter(1))
-        sorted_data.reverse()
-        sorted_data = sorted_data[:count]
-        messages = [i[0] for i in sorted_data]
-        return messages
+        """
+        @param {str} chat_id The channel id
+        @param {int} count Amount of the most popular messages, which ids will be returned
+        @param {int} time_limit Amount of hours, so messages, which have been sent after (current_time - count) hours will be included into comparison  
+        @returns {list} A list, which contains ids, which belong to most popular messsages in this chat 
+        """
+        self._mutex.acquire()
+        try:
+            all_messages = []
+            data = {}
+            data_delta = 0
+            hours_delta = 0
+            data_delta += time_limit // 24
+            hours_delta += time_limit % 24
+            today = datetime.datetime.utcnow()
+            if today.hour - hours_delta < 0:
+                limit_date = datetime.datetime(hour=today.hour - hours_delta + 24, minute=today.minute, second=today.second,  \
+                    day=today.day - data_delta - 1, month=today.month, year=today.year, tzinfo=datetime.timezone.utc)
+            else:
+                limit_date = datetime.datetime(hour=today.hour - hours_delta, minute=today.minute, second=today.second,  \
+                    day=today.day - data_delta, month=today.month, year=today.year, tzinfo=datetime.timezone.utc)
+            for message in self.client.iter_messages(chat_id, offset_date=limit_date, reverse=True):
+                try:
+                    data[message.id] = int(message.views)
+                except:
+                    data[message.id] = 0
+                all_messages.append(message)
+            sorted_data = sorted(data.items(), key=operator.itemgetter(1))
+            sorted_data.reverse()
+            sorted_data = sorted_data[:count]
+            messages = [i[0] for i in sorted_data]
+            return messages
+        except:
+            return None
+        finally:
+            self._mutex.release()
 
 if __name__ == '__main__':
     a = MessagesCollector()
-    data = a.get_interesting_messages("@Cbpub", 5 ,72)
+    data = a.get_interesting_messages("@Cbpub", 5, 72)
     print(data)

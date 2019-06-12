@@ -57,8 +57,8 @@ class ChannelsHandler:
             self.del_channel(channel_link)
 
         channel_id = get_channel_id(channel_link)
-        if not(len(channel_id) and (channel_id[0] == '@')):
-            return {'ok': False, 'user_message': 'Некорректный channel_id'}
+        '''if not self.msg_collector.is_channel(channel_id):
+            return {'ok': False, 'user_message': 'Некорректный channel_id'}'''
 
         channel_data = ChannelData(channel_id, frequency, count)
         self.channels[channel_id] = channel_data
@@ -73,8 +73,12 @@ class ChannelsHandler:
                         channel_data.count,
                         channel_data.frequency
                         )
-                for msg in msgs:
-                    _notify(bot, user_id, channel_id, msg)
+                if msgs == None:
+                    bot.send_message(user_id, "Кажется, произошла ошибка при сборе \
+информации из канала {}\nПожалуйста, сообщите нам об этом".format(channel_data.channel_id))
+                else:
+                    for msg in msgs:
+                        _notify(bot, user_id, channel_id, msg)
                 sleep(60 * 60 * channel_data.frequency)
 
         try:
@@ -152,5 +156,4 @@ class ChannelsHandler:
                 channel_data.frequency,
                 channel_data.count
                 )
-            sleep(1)
         return self
