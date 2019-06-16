@@ -1,6 +1,7 @@
 import requests
 from threading import Timer, Event
 from time import sleep
+from traceback import format_exc
 
 
 def get_channel_id(chat_link):
@@ -81,19 +82,28 @@ class ChannelsHandler:
         self.stop_events[channel_id] = local_stop
         def f(stop_event, user_id, channel_data, bot, messages_collector):
             while True:
-                if stop_event.is_set():
-                    return
-                msgs = messages_collector.get_interesting_messages(
-                        channel_data.channel_id,
-                        channel_data.count,
-                        channel_data.frequency
-                        )
-                if msgs == None:
-                    bot.send_message(user_id, "Кажется, произошла ошибка при сборе \
-информации из канала {}\nПожалуйста, сообщите нам об этом".format(channel_data.channel_id))
-                else:
-                    for msg in msgs:
-                        _notify(bot, user_id, channel_id, msg)
+                msg = "Unknown"
+                try:
+                    if stop_event.is_set():
+                        return
+                    msgs = messages_collector.get_interesting_messages(
+                            channel_data.channel_id,
+                            channel_data.count,
+                            channel_data.frequency
+                            )
+                    if msgs == None:
+                        bot.send_message(user_id, "Кажется, произошла ошибка при сборе информации из канала {}\nПожалуйста, сообщите нам об этом".format(channel_data.channel_id))
+                    else:
+                        for msg in msgs:
+                            _notify(bot, user_id, channel_id, msg)
+                except:
+                    print(format_exc())
+                    try:
+                        bot.send_message(user_id, "Произошла критическая ошибка. ПОЖАЛУЙСТА, перешлите это сообщение @kolayne. Канал: {}. Сообщение: {}. Техническая информация:\n{}".format(
+                            channel_data.channel_id,
+                            msg,
+                            format_exc()
+                            ))
                 sleep(60 * 60 * channel_data.frequency)
 
         try:
