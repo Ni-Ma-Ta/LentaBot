@@ -104,6 +104,8 @@ class ChannelsHandler:
                             msg,
                             format_exc()
                             ))
+                    except:
+                        pass
                 sleep(60 * 60 * channel_data.frequency)
 
         try:
