@@ -23,8 +23,8 @@ class MessagesCollector:
         self._mutex = Lock()
 
     def __del__(self):
-        self._mutex.acquire()
         self.client.disconnect()
+        self._mutex.acquire()
 
     def get_interesting_messages(self, chat_id, count, time_limit):
         """

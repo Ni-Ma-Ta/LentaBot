@@ -192,6 +192,13 @@ if __name__ == "__main__":
     if isfile("userdata.pickle"):
         with open("userdata.pickle", "rb") as f:
             all_users = {k: ChannelsHandler(bot, k, msg_collector).loads(v) for k, v in pickle.load(f).items()}
-        for user in all_users.keys():
-            bot.send_message(user, "Извините, бот был перезагружен. Но не волнуйтесь! Мы сохранили ваши настройки. Время отправки новостей будет отсчитываться с текущего момента")
+        for user in list(all_users.keys())[:]:
+            try:
+                bot.send_message(user, "Извините, бот был перезагружен. Но не волнуйтесь! Мы сохранили ваши настройки. Время отправки новостей будет отсчитываться с текущего момента")
+            except Exception as e:
+                try:
+                    if(e.result.json()['description'] == 'Forbidden: bot was blocked by the user'):
+                        del all_users[user]
+                except:
+                    pass
     bot.polling(none_stop=False)
