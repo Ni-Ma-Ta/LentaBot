@@ -1,7 +1,10 @@
+__author__ = "Nikolay Nechaev"
+
 import telebot
 import pickle
-from secrets import telebot_token as token
 from sys import stdin
+
+from secrets import telebot_token as token
 
 bot = telebot.TeleBot(token)
 print("Let's start. To interrupt the process, type ^C")

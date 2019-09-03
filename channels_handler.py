@@ -1,8 +1,9 @@
+__author__ = "Nikolay Nechaev"
+
 import requests
 from threading import Timer, Event
 from time import sleep
 from traceback import format_exc
-
 
 def get_channel_id(chat_link):
     """

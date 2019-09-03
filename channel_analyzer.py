@@ -1,5 +1,7 @@
-import operator
+__author__ = "Maksim Bessonov"
+
 import datetime
+from operator import itemgetter
 from threading import Lock
 
 import telethon.sync as telethon
@@ -54,7 +56,7 @@ class MessagesCollector:
                 except:
                     data[message.id] = 0
                 all_messages.append(message)
-            sorted_data = sorted(data.items(), key=operator.itemgetter(1))
+            sorted_data = sorted(data.items(), key=itemgetter(1))
             sorted_data.reverse()
             sorted_data = sorted_data[:count]
             messages = [i[0] for i in sorted_data]

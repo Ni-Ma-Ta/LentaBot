@@ -1,10 +1,12 @@
+__author__ = "Tatiana Kadykova"
+
 import telebot
 import pickle
 from os.path import isfile
 
-from secrets import telebot_token
 from channel_analyzer import MessagesCollector
 from channels_handler import ChannelsHandler
+from secrets import telebot_token
 
 
 def is_int(s):
