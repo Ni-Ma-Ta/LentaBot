@@ -6,7 +6,7 @@ this stuff is worth it, you can buy us a muffin in return.
 
 -Nikolay Nechaev, <Nikolay_Nechaev@mail.ru>
 
--Kadykova Tatiana, <tanya-kta@bk.ru>
+-Tatiana Kadykova, <tanya-kta@bk.ru>
 
--Bessonov Maksim, <maximbess03@gmail.com>
+-Maksim Bessonov, <maximbess03@gmail.com>
 
